@@ -63,11 +63,11 @@
         }
 
         h1 {
-            font-size: 2.5rem;
+            font-size: 2.4rem;
             margin: 0;
             color: var(--primary);
             text-shadow: 2px 2px 0px var(--primary-shadow);
-            -webkit-text-stroke: 1px #fff;
+            -webkit-text-stroke: 1px var(--text-color);
         }
 
         button {
@@ -89,14 +89,14 @@
         }
 
         .btn-icon {
-            padding: 10px;
+            padding: 8px;
             border-radius: 50%;
-            width: 50px;
-            height: 50px;
+            width: 40px; 
+            height: 40px; 
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 1.5rem;
+            font-size: 1.2rem; 
         }
 
         /* Kartu & Form */
@@ -264,10 +264,10 @@
     <div class="container">
         <header>
             <div style="display: flex; align-items: center; gap: 15px;">
-                <img id="app-logo" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ff69b4'><path d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/></svg>" alt="Logo" style="width: 65px; height: 65px; background-color: white; padding: 6px; border-radius: 50%; border: var(--border); object-fit: contain;">
+                <img id="app-logo" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ff69b4'><path d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/></svg>" alt="Logo" style="width: 45px; height: 45px; background-color: white; padding: 6px; border-radius: 50%; border: var(--border); object-fit: contain;">
                 <div>
                     <h1>Buku Uang Mama Eva</h1>
-                    <div id="app-subtitle" style="font-size: 1.1rem; font-weight: bold; margin-top: 5px; opacity: 0.9;">Catatan Keuangan Manis & Cantik ✨</div>
+                    <div id="app-subtitle" style="font-size: 1.1rem; font-weight: bold; margin-top: 3px; opacity: 0.9;">Catatan Keuangan Mama Yang Manis & Cantik ✨</div>
                 </div>
             </div>
             <div style="display: flex; gap: 10px;">
@@ -289,6 +289,11 @@
             <div class="card">
                 <div class="saldo-box">
                     Saldo: <span id="saldo-total">Rp 0</span>
+                    
+                    <div style="margin-top: 15px; display: flex; justify-content: center; gap: 10px;">
+                        <button onclick="editDompet()" style="font-size: 1rem; padding: 8px 15px;">✏️ Ubah Nama Dompet</button>
+                        <button onclick="hapusDompet()" style="font-size: 1rem; padding: 8px 15px; background-color: var(--keluar);">🗑️ Hapus Dompet</button>
+                    </div>
                 </div>
 
                 <h3>📝 Catat Transaksi</h3>
@@ -344,7 +349,7 @@
     </div>
 
     <footer>
-        &copy; 2026 PT Arta Makmur Jaya Sentosa | Hak Cipta Dilindungi
+        &copy; 2026 PT Arta Makmur Jaya Sentosa. Dibuat khusus untuk Mama Eva Tercinta dan Tercantik di Dunia | Hak Cipta Dilindungi
     </footer>
 
     <script>
@@ -400,6 +405,7 @@
             document.getElementById('nama-dompet-baru').value = '';
             simpanKeLokal();
             renderDompet();
+            pilihDompet(dompetBaru.id); // Otomatis pilih dompet yang baru dibuat
         }
 
         function renderDompet() {
@@ -425,6 +431,38 @@
             batalEdit();
             renderDompet();
             renderRiwayat();
+        }
+
+        // --- FUNGSI EDIT & HAPUS DOMPET BARU ---
+        function editDompet() {
+            if (!dompetAktifId) return;
+            const dompet = dataBukuUang.dompet.find(d => d.id === dompetAktifId);
+            const namaBaru = prompt("Ubah nama dompet menjadi:", dompet.nama);
+            
+            if (namaBaru !== null && namaBaru.trim() !== "") {
+                dompet.nama = namaBaru.trim();
+                simpanKeLokal();
+                renderDompet();
+            }
+        }
+
+        function hapusDompet() {
+            if (!dompetAktifId) return;
+            const dompet = dataBukuUang.dompet.find(d => d.id === dompetAktifId);
+            
+            if (confirm(`Yakin mau hapus dompet "${dompet.nama}" beserta seluruh riwayat catatannya? 🗑️`)) {
+                dataBukuUang.dompet = dataBukuUang.dompet.filter(d => d.id !== dompetAktifId);
+                simpanKeLokal();
+                
+                // Pilih dompet lain jika masih ada, jika tidak, sembunyikan area transaksi
+                if (dataBukuUang.dompet.length > 0) {
+                    pilihDompet(dataBukuUang.dompet[0].id);
+                } else {
+                    dompetAktifId = null;
+                    renderDompet();
+                    document.getElementById('area-dompet').style.display = 'none';
+                }
+            }
         }
 
         // --- FUNGSI TRANSAKSI ---
